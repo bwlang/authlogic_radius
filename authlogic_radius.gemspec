@@ -17,7 +17,8 @@ and a few RADIUS specific bits.
 }
   s.email = %q{langhorst@neb.com}
   s.extra_rdoc_files = [
-    "README.rdoc"
+    "LICENSE",
+     "README.rdoc"
   ]
   s.files = [
     "lib/authlogic_radius.rb",
@@ -36,15 +37,15 @@ and a few RADIUS specific bits.
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<authlogic>, ["> 2.0"])
-      s.add_runtime_dependency(%q<radiustar>, [">= 0"])
+      s.add_runtime_dependency(%q<authlogic>, [">= 2.0"])
+      s.add_runtime_dependency(%q<radiustar>, [">= 0.0.3"])
     else
-      s.add_dependency(%q<authlogic>, ["> 2.0"])
-      s.add_dependency(%q<radiustar>, [">= 0"])
+      s.add_dependency(%q<authlogic>, [">= 2.0"])
+      s.add_dependency(%q<radiustar>, [">= 0.0.3"])
     end
   else
-    s.add_dependency(%q<authlogic>, ["> 2.0"])
-    s.add_dependency(%q<radiustar>, [">= 0"])
+    s.add_dependency(%q<authlogic>, [">= 2.0"])
+    s.add_dependency(%q<radiustar>, [">= 0.0.3"])
   end
 end
 

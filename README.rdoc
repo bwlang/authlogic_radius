@@ -37,24 +37,21 @@ and a few RADIUS specific bits.
   end
 
 === 2. Install authlogic_radius gem
-   $ sudo gem install authlogic_radius
+    Add the gem to your environment's list of gems
+        config.gem "authlogic_radius"
+   $ sudo rake gems:install
 
-Add the gem to your environment's list of gems
-  config.gem "authlogic_radius"
 
-=== 3. Update your controller logic to use the Radius server
-=== 4. Update your views to use :radius_login and :radius_password
-=== 5. Add/update a configuration block to your user model with the RADIUS details
+=== 3. Update your views to use :radius_login and :radius_password
 
-    class User < ActiveRecord::Base
-      #...
-      acts_as_authentic do |c|
-        ...
-        c.radius_host = "your.radius.server"
-        c.radius_shared_secret = 'super-secret' #not the same as the user password...
-        #optionally:
-        c.radius_port = 1812
-        c.radius_timeout = 2
-      end
-      #...
+=== 4. Add/update configuration in your UserSession model with the RADIUS details
+    class UserSession < Authlogic::Session::Base
+      ...
+      self.radius_host = "your.radius.server"
+      self.radius_shared_secret = 'super-secret' #not the same as the user password...
+      #optionally
+      self.radius_port = 1812
+      self.radius_timeout = 2
+      ...
     end
+    

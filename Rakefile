@@ -15,8 +15,8 @@ EOF
     gemspec.email = "langhorst@neb.com"
     gemspec.homepage = "http://github.com/bwlang/authlogic_radius"
     gemspec.authors = ["Brad Langhorst"]
-    gemspec.add_dependency 'authlogic', ">2.0"
-    gemspec.add_dependency 'radiustar'
+    gemspec.add_dependency 'authlogic', ">=2.0"
+    gemspec.add_dependency 'radiustar', ">=0.0.3"
     gemspec.files = Dir['lib/**/*.rb']
   end
 rescue LoadError
