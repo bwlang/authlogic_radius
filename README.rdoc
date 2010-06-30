@@ -1,0 +1,60 @@
+== Authlogic RADIUS
+
+
+This is a simple gem to allow authentication against a radius server
+
+Mostly it is a product of a global replace of ldap with radius...
+and a few RADIUS specific bits.
+
+
+== Links
+*  <b>radiustar</b> http://github.com/pjdavis/radiustar
+*  <b>authlogic</b> http://github.com/binarylogic/authlogic
+*  <b>authlogic_ldap</b> http://github.com/binarylogic/authlogic_ldap
+
+
+== Installation
+ === 1. Add fields to your database
+
+  class AddRadiusFields < ActiveRecord::Migration
+    def self.up
+      add_column :users, :radius_login, :string
+      add_index :users, :radius_login
+
+      change_column :users, :login, :string, :default => nil, :null => true
+      change_column :users, :crypted_password, :string, :default => nil, :null => true
+      change_column :users, :password_salt, :string, :default => nil, :null => true
+    end
+
+    def self.down
+      remove_column :users, :radius_login
+
+      [:login, :crypted_password, :password_salt].each do |field|
+        User.all(:conditions => "#{field} is NULL").each { |user| user.update_attribute(field, "") if user.send(field).nil? }
+        change_column :users, field, :string, :default => "", :null => false
+      end
+    end
+  end
+
+=== 2. Install authlogic_radius gem
+   $ sudo gem install authlogic_radius
+
+Add the gem to your environment's list of gems
+  config.gem "authlogic_radius"
+
+=== 3. Update your controller logic to use the Radius server
+=== 4. Update your views to use :radius_login and :radius_password
+=== 5. Add/update a configuration block to your user model with the RADIUS details
+
+    class User < ActiveRecord::Base
+      #...
+      acts_as_authentic do |c|
+        ...
+        c.radius_host = "your.radius.server"
+        c.radius_shared_secret = 'super-secret' #not the same as the user password...
+        #optionally:
+        c.radius_port = 1812
+        c.radius_timeout = 2
+      end
+      #...
+    end
