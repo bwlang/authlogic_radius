@@ -122,7 +122,7 @@ module AuthlogicRadius
           errors.add(:radius_password, I18n.t('error_messages.radius_password_blank', :default => "can not be blank")) if radius_password.blank?
           return if errors.count > 0
           
-          req = Radiustar::Request.new("#{radius_host}:#{radius_port}", get_source_address(radius_host))
+          req = Radiustar::Request.new("#{radius_host}:#{radius_port}")
 
           begin
             Timeout.timeout(radius_timeout) do
@@ -154,19 +154,6 @@ module AuthlogicRadius
         
         def radius_timeout
           self.class.radius_timeout
-        end
-
-         #looks up the source IP address with a route to the specified destination
-        def get_source_address(dest_address)
-          orig_reverse_lookup_setting = Socket.do_not_reverse_lookup
-          Socket.do_not_reverse_lookup = true
-
-          UDPSocket.open do |sock|
-            sock.connect dest_address, 1
-            sock.addr.last
-          end
-        ensure
-           Socket.do_not_reverse_lookup = orig_reverse_lookup_setting
         end
     end
   end
