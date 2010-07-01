@@ -3,7 +3,7 @@
 
 This is a simple gem to allow authentication against a radius server
 
-Mostly it is a product of a global replace of ldap with radius...
+Mostly it is a duplication or authlogic_ldap, with a global replace of "ldap" with "radius"...
 and a few RADIUS specific bits.
 
 

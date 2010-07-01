@@ -7,10 +7,7 @@ begin
     gemspec.name = "authlogic_radius"
     gemspec.summary = "Extension of the Authlogic library adding RADIUS support."
     gemspec.description = <<-EOF
-This is a simple gem to allow authentication against a RADIUS server
-
-Mostly it is the product of a global replace of ldap with radius...
-and a few RADIUS specific bits.
+This is a simple gem to allow authentication against a RADIUS server.
 EOF
     gemspec.email = "langhorst@neb.com"
     gemspec.homepage = "http://github.com/bwlang/authlogic_radius"
