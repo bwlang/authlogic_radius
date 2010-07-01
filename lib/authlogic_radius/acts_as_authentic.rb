@@ -27,10 +27,16 @@ module AuthlogicRadius
           attr_accessor :radius_password
           
           if validate_radius_login
-            validates_uniqueness_of :radius_login, :scope => validations_scope, :if => :authenticating_with_radius?
-            validates_presence_of :radius_password, :if => :authenticating_with_radius?
+            validates_uniqueness_of :radius_login, :scope => validations_scope, :if => :using_radius?
           end
         end
+      end
+
+      private
+
+      def using_radius?
+        respond_to?(:radius_login) && respond_to?(:radius_password) &&
+          (!radius_login.blank? || !radius_password.blank?)
       end
       
     end
