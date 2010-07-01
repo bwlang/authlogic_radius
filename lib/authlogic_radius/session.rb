@@ -158,6 +158,10 @@ module AuthlogicRadius
         def radius_timeout
           self.class.radius_timeout
         end
+
+        def find_by_radius_login_method
+          self.class.find_by_radius_login_method
+        end
     end
   end
 end
