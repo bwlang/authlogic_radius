@@ -19,6 +19,7 @@ EOF
     gemspec.add_dependency 'radiustar', ">=0.0.3"
     gemspec.files = Dir['lib/**/*.rb']
   end
+  Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
 end
