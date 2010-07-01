@@ -119,8 +119,13 @@ module AuthlogicRadius
           errors.add(:radius_login, I18n.t('error_messages.radius_login_blank', :default => "can not be blank")) if radius_login.blank?
           errors.add(:radius_password, I18n.t('error_messages.radius_password_blank', :default => "can not be blank")) if radius_password.blank?
           return if errors.count > 0
-          
-          req = Radiustar::Request.new("#{radius_host}:#{radius_port}")
+
+          begin
+            req = Radiustar::Request.new("#{radius_host}:#{radius_port}")
+          rescue => e
+            errors.add_to_base("Unable to contact RADIUS server at #{radius_host}:#{radius_port}")
+            return
+          end
 
           begin
             Timeout.timeout(radius_timeout) do
@@ -132,7 +137,7 @@ module AuthlogicRadius
               end
             end
           rescue Timeout::Error
-            errors.add_to_base("No response from RADIUS server")
+            errors.add_to_base("No response from RADIUS server at #{radius_host}:#{radius_port}")
           rescue => e
             errors.add_to_base(e.to_s)
           end
