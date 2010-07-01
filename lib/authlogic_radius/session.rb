@@ -56,6 +56,23 @@ module AuthlogicRadius
       end
       alias_method :radius_login_field=, :radius_login_field
 
+      # Set to indicate whether users should be created here upon successful authentication
+      # * <tt>Defaults:</tt> true
+      # * <tt>Accepts:</tt> Boolean
+      def auto_register(value=nil)
+        rw_config(:auto_register,value, true)
+      end
+      alias_method :auto_register=, :auto_register
+
+      # The domain part added to the login to generate an email address
+      # * <tt>Defaults:</tt> nil
+      # * <tt>Accepts:</tt> String
+
+      def auto_register_domain(value=nil)
+        rw_config(:auto_register_domain, value)
+      end
+      alias_method :auto_register_domain=, :auto_register_domain
+
       # Once RADIUS authentication has succeeded we need to find the user in the database. By default this just calls the
       # find_by_radius_login method provided by ActiveRecord. If you have a more advanced set up and need to find users
       # differently specify your own method and define your logic in there.
@@ -81,6 +98,7 @@ module AuthlogicRadius
         klass.class_eval do
           attr_accessor :radius_login
           attr_accessor :radius_password
+          attr_accessor :radius_domain
           validate :validate_by_radius, :if => :authenticating_with_radius?
         end
       end
@@ -105,7 +123,11 @@ module AuthlogicRadius
         values = value.is_a?(Array) ? value : [value]
         hash = values.first.is_a?(Hash) ? values.first.with_indifferent_access : nil
         if !hash.nil?
-          self.radius_login = hash[:radius_login] if hash.key?(:radius_login)
+          if hash.key?(:radius_login)
+            (login, domain) = radius_login.split('@')
+            self.radius_domain = domain || auto_register_domain
+            self.radius_login = login
+          end
           self.radius_password = hash[:radius_password] if hash.key?(:radius_password)
         end
       end
@@ -113,6 +135,14 @@ module AuthlogicRadius
       private
         def authenticating_with_radius?
           return radius_host && radius_shared_secret && radius_login
+        end
+
+        def auto_register?
+          self.class.auto_register
+        end
+
+        def auto_register_domain
+          self.class.auto_register_domain
         end
         
         def validate_by_radius
@@ -123,21 +153,37 @@ module AuthlogicRadius
           begin
             req = Radiustar::Request.new("#{radius_host}:#{radius_port}")
           rescue => e
-            errors.add_to_base("Unable to contact RADIUS server at #{radius_host}:#{radius_port}")
+            errors.add_to_base(I18n.t('error_messsages.cannot_resolve_radius_server', :default => "Unable to find a network path to RADIUS server at #{radius_host}:#{radius_port}"))
             return
           end
 
           begin
+            
             Timeout.timeout(radius_timeout) do
               if req.authenticate(radius_login,radius_password,radius_shared_secret)
+                #authentication succeeded, find or create the user
                 self.attempted_record = search_for_record(find_by_radius_login_method, radius_login)
-                errors.add(:radius_login, I18n.t('error_messages.radius_login_not_found', :default => "does not exist")) if attempted_record.blank?
+
+                if attempted_record.blank? && auto_register?
+                  self.attempted_record = klass.new(
+                    :radius_login => radius_login,
+                    :email => "#{login}@#{domain}",
+                    :remember_me => controller.params[:remember_me] == "true"
+                  )
+                  if self.attempted_record.save
+                    logger.info 'New user created'
+                  else
+                    errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
+                  end
+                else
+                  errors.add(:radius_login, I18n.t('error_messages.radius_login_not_found', :default => "does not exist")) if attempted_record.blank?
+                end
               else
-                errors.add_to_base("Authentication failed")
+                errors.add_to_base(I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
               end
             end
           rescue Timeout::Error
-            errors.add_to_base("No response from RADIUS server at #{radius_host}:#{radius_port}")
+            errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
           rescue => e
             errors.add_to_base(e.to_s)
           end

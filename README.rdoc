@@ -52,6 +52,8 @@ and a few RADIUS specific bits.
       #optionally
       self.radius_port = 1812
       self.radius_timeout = 2
+      self.auto_register = true
+      self.auto_register_domain = nil #will create user objects with :email = radius_login@auto_register_domain
       ...
     end
     
