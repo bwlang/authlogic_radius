@@ -10,10 +10,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brad Langhorst"]
   s.date = %q{2010-06-30}
-  s.description = %q{This is a simple gem to allow authentication against a RADIUS server
-
-Mostly it is the product of a global replace of ldap with radius...
-and a few RADIUS specific bits.
+  s.description = %q{This is a simple gem to allow authentication against a RADIUS server.
 }
   s.email = %q{langhorst@neb.com}
   s.extra_rdoc_files = [
