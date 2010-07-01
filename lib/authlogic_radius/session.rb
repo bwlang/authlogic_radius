@@ -112,8 +112,6 @@ module AuthlogicRadius
       
       private
         def authenticating_with_radius?
-          foo = radius_shared_secret
-          puts foo
           return radius_host && radius_shared_secret && radius_login
         end
         
