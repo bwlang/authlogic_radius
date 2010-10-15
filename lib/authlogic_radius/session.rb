@@ -67,11 +67,20 @@ module AuthlogicRadius
       # The domain part added to the login to generate an email address
       # * <tt>Defaults:</tt> nil
       # * <tt>Accepts:</tt> String
-
       def auto_register_domain(value=nil)
         rw_config(:auto_register_domain, value)
       end
       alias_method :auto_register_domain=, :auto_register_domain
+      
+      # Defines a method to call when a user is auto registered.
+      # This is intended to allow for custom user configuration (i.e. adding roles, etc).
+      #
+      # * <tt>Default:</tt> :configure_new_radius_user
+      # * <tt>Accepts:</tt> Symbol
+      def auto_register_method(value=nil)
+        rw_config(:auto_register_method, value, :configure_new_radius_user)
+      end
+      alias_method :auto_register_method=, :auto_register_method
 
       # Once RADIUS authentication has succeeded we need to find the user in the database. By default this just calls the
       # find_by_radius_login method provided by ActiveRecord. If you have a more advanced set up and need to find users
@@ -124,7 +133,7 @@ module AuthlogicRadius
         hash = values.first.is_a?(Hash) ? values.first.with_indifferent_access : nil
         if !hash.nil?
           if hash.key?(:radius_login)
-            (login, domain) = radius_login.split('@')
+            (login, domain) = hash[:radius_login].split('@')
             self.radius_domain = domain || auto_register_domain
             self.radius_login = login
           end
@@ -167,12 +176,14 @@ module AuthlogicRadius
                 if attempted_record.blank? && auto_register?
                   self.attempted_record = klass.new(
                     :radius_login => radius_login,
-                    :email => "#{login}@#{domain}",
+                    :email => "#{radius_login}@#{radius_domain}",
                     :remember_me => controller.params[:remember_me] == "true"
                   )
+                  auto_register_method.to_proc.call(self.attempted_record)
                   if self.attempted_record.save
                     logger.info 'New user created'
                   else
+                    logger.debug "#{self.attempted_record.errors.full_messages}"
                     errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
                   end
                 else
@@ -200,7 +211,19 @@ module AuthlogicRadius
         def radius_shared_secret
           self.class.radius_shared_secret
         end
+
+        def auto_register
+          self.class.auto_register
+        end
+
+        def auto_register_domain
+          self.class.auto_register_domain
+        end
         
+        def auto_register_method
+          self.class.auto_register_method
+        end
+
         def radius_timeout
           self.class.radius_timeout
         end
@@ -208,6 +231,7 @@ module AuthlogicRadius
         def find_by_radius_login_method
           self.class.find_by_radius_login_method
         end
+
     end
   end
 end

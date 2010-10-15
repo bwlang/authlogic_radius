@@ -4,14 +4,13 @@
 This is a simple gem to allow authentication against a radius server
 
 Mostly it is a duplication or authlogic_ldap, with a global replace of "ldap" with "radius"...
-and a few RADIUS specific bits.
+with a few RADIUS specific bits.
 
 
 == Links
 *  <b>radiustar</b> http://github.com/pjdavis/radiustar
 *  <b>authlogic</b> http://github.com/binarylogic/authlogic
 *  <b>authlogic_ldap</b> http://github.com/binarylogic/authlogic_ldap
-
 
 == Installation
  === 1. Add fields to your database
@@ -54,6 +53,7 @@ and a few RADIUS specific bits.
       self.radius_timeout = 2
       self.auto_register = true
       self.auto_register_domain = nil #will create user objects with :email = radius_login@auto_register_domain
+      self.auto_register_method = :method_in_user_model_that_configures_new_radius_user
       ...
     end
     
