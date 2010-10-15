@@ -181,9 +181,9 @@ module AuthlogicRadius
                   )
                   auto_register_method.to_proc.call(self.attempted_record)
                   if self.attempted_record.save
-                    logger.info 'New user created'
+                    Rails.logger.info 'New user created'
                   else
-                    logger.debug "#{self.attempted_record.errors.full_messages}"
+                    Rails.logger.debug "#{self.attempted_record.errors.full_messages}"
                     errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
                   end
                 else
