@@ -167,34 +167,38 @@ module AuthlogicRadius
           end
 
           begin
+            radius_response = nil
+            begin
+              Timeout.timeout(radius_timeout) do
+                radius_response = req.authenticate(radius_login,radius_password,radius_shared_secret)
+              end
+            rescue Timeout::Error
+              errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
+            end
             
-            Timeout.timeout(radius_timeout) do
-              if req.authenticate(radius_login,radius_password,radius_shared_secret)
-                #authentication succeeded, find or create the user
-                self.attempted_record = search_for_record(find_by_radius_login_method, radius_login)
+            if radius_response
+              #authentication succeeded, find or create the user
+              self.attempted_record = search_for_record(find_by_radius_login_method, radius_login)
 
-                if attempted_record.blank? && auto_register?
-                  self.attempted_record = klass.new(
-                    :radius_login => radius_login,
-                    :email => "#{radius_login}@#{radius_domain}",
-                    :remember_me => controller.params[:remember_me] == "true"
-                  )
-                  auto_register_method.to_proc.call(self.attempted_record)
-                  if self.attempted_record.save
-                    Rails.logger.info 'New user created'
-                  else
-                    Rails.logger.debug "#{self.attempted_record.errors.full_messages}"
-                    errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
-                  end
+              if attempted_record.blank? && auto_register?
+                self.attempted_record = klass.new(
+                  :radius_login => radius_login,
+                  :email => "#{radius_login}@#{radius_domain}",
+                  :remember_me => controller.params[:remember_me] == "true"
+                )
+                auto_register_method.to_proc.call(self.attempted_record)
+                if self.attempted_record.save
+                  Rails.logger.info 'New user created'
                 else
-                  errors.add(:radius_login, I18n.t('error_messages.radius_login_not_found', :default => "does not exist")) if attempted_record.blank?
+                  Rails.logger.debug "#{self.attempted_record.errors.full_messages}"
+                  errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
                 end
               else
-                errors.add_to_base(I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
+                errors.add(:radius_login, I18n.t('error_messages.radius_login_not_found', :default => "does not exist")) if attempted_record.blank?
               end
+            else
+              errors.add_to_base(I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
             end
-          rescue Timeout::Error
-            errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
           rescue => e
             errors.add_to_base(e.to_s)
           end
