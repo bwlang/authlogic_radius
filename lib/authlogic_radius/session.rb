@@ -201,6 +201,8 @@ module AuthlogicRadius
             end
           rescue => e
             errors.add_to_base(e.to_s)
+            Rails.logger.error(e.to_s)
+            Rails.logger.error(e.backtrace)
           end
         end
         
