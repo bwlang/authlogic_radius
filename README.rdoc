@@ -3,7 +3,7 @@
 
 This is a simple gem to allow authentication against a radius server
 
-Mostly it is a duplication or authlogic_ldap, with a global replace of "ldap" with "radius"...
+Mostly it is a duplication of authlogic_ldap, with a global replace of "ldap" with "radius"...
 with a few RADIUS specific bits.
 
 
@@ -13,7 +13,7 @@ with a few RADIUS specific bits.
 *  <b>authlogic_ldap</b> http://github.com/binarylogic/authlogic_ldap
 
 == Installation
- === 1. Add fields to your database
+=== 1. Add fields to your database
 
   class AddRadiusFields < ActiveRecord::Migration
     def self.up
