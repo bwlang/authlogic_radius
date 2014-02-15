@@ -162,7 +162,11 @@ module AuthlogicRadius
           begin
             req = Radiustar::Request.new("#{radius_host}:#{radius_port}")
           rescue => e
-            errors.add_to_base(I18n.t('error_messsages.cannot_resolve_radius_server', :default => "Unable to find a network path to RADIUS server at #{radius_host}:#{radius_port}"))
+            if Rails.version.to_i >= 3
+              errors.add(:base, I18n.t('error_messsages.cannot_resolve_radius_server', :default => "Unable to find a network path to RADIUS server at #{radius_host}:#{radius_port}"))
+            else
+              errors.add_to_base(I18n.t('error_messsages.cannot_resolve_radius_server', :default => "Unable to find a network path to RADIUS server at #{radius_host}:#{radius_port}"))
+            end
             return
           end
 
@@ -173,7 +177,11 @@ module AuthlogicRadius
                 radius_response = req.authenticate(radius_login,radius_password,radius_shared_secret)
               end
             rescue Timeout::Error
-              errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
+              if Rails.version.to_i >= 3
+                errors.(:base, I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
+              else
+                errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
+              end
             end
             
             if radius_response
@@ -191,16 +199,28 @@ module AuthlogicRadius
                   Rails.logger.info 'New user created'
                 else
                   Rails.logger.debug "#{self.attempted_record.errors.full_messages}"
-                  errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
+                  if Rails.version.to_i >= 3
+                    errors.add(:base, I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
+                  else
+                    errors.add_to_base(I18n.t('error_messages.failed_to_create_local_user', :default => "Failed to create a local user record."))
+                  end
                 end
               else
                 errors.add(:radius_login, I18n.t('error_messages.radius_login_not_found', :default => "does not exist")) if attempted_record.blank?
               end
             else
-              errors.add_to_base(I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
+              if Rails.version.to_i >= 3
+                errors.add(:base, I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
+              else
+                errors.add_to_base(I18n.t('error_messages.authentication_failed', :default => "Authentication failed"))
+              end
             end
           rescue => e
-            errors.add_to_base(e.to_s)
+            if Rails.version.to_i >= 3
+              errors.add(:base, e.to_s)
+            else
+              errors.add_to_base(e.to_s)
+            end
             Rails.logger.error(e.to_s)
             Rails.logger.error(e.backtrace)
           end
