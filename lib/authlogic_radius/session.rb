@@ -178,7 +178,7 @@ module AuthlogicRadius
               end
             rescue Timeout::Error
               if Rails.version.to_i >= 3
-                errors.(:base, I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
+                errors.add(:base, I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
               else
                 errors.add_to_base(I18n.t('error_messages.radius_server_unavailable', :default => "No response from RADIUS server at #{radius_host}:#{radius_port}"))
               end
