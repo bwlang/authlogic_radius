@@ -184,7 +184,7 @@ module AuthlogicRadius
               end
             end
             
-            if radius_response
+            if radius_response && radius_response[:code] == 'Access-Accept'
               #authentication succeeded, find or create the user
               self.attempted_record = search_for_record(find_by_radius_login_method, radius_login)
 
