@@ -6,6 +6,8 @@ This is a simple gem to allow authentication against a radius server
 Mostly it is a duplication of authlogic_ldap, with a global replace of "ldap" with "radius"...
 with a few RADIUS specific bits.
 
+This version is tested only with ruby 2.0 and Rail 3 and 4
+
 
 == Links
 *  <b>radiustar</b> http://github.com/pjdavis/radiustar
