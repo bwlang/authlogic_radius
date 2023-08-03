@@ -25,17 +25,6 @@ module AuthlogicRadius
       def self.included(klass)
         klass.class_eval do
           attr_accessor :radius_password
-          
-          if validate_radius_login
-            validates_uniqueness_of :radius_login, :scope => validations_scope, :if => :using_radius?
-          end
-          validates_length_of_password_field_options validates_length_of_password_field_options.merge(:unless => :using_radius?)
-          validates_confirmation_of_password_field_options validates_confirmation_of_password_field_options.merge(:unless => :using_radius?)
-          validates_length_of_password_confirmation_field_options validates_length_of_password_confirmation_field_options.merge(:unless => :using_radius?)
-          validates_length_of_login_field_options validates_length_of_login_field_options.merge(:unless => :using_radius?)
-          validates_uniqueness_of_login_field_options validates_uniqueness_of_login_field_options.merge(:unless => :using_radius?)
-          validates_format_of_login_field_options validates_format_of_login_field_options.merge(:unless => :using_radius?)
-
         end
       end
 
