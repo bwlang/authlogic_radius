@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Brad Langhorst", "Mike Lyons"]
-  s.date = "2023-08-3"
+  s.date = "2023-08-03"
   s.description = "This is a simple gem to allow authentication against a RADIUS server.\n"
   s.email = ["langhorst@neb.com", "mike@tahoelabs.io"]
   s.extra_rdoc_files = [
